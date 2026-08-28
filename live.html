@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AZ Scoring Rimayah</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+    body { font-family: 'Poppins', sans-serif; background-color: #F0F4F8; color: #2A3543; margin: 0; padding: 0; }
+    header { background-color: #0A1C3E; color: #D4AF37; padding: 15px 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-bottom: 3px solid #D4AF37; }
+    h1 { margin: 0; font-size: 22px; }
+    .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+    .loc-info { text-align: center; font-size: 14px; font-weight: 600; color: #0A1C3E; margin-bottom: 20px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #D4AF37;}
+    .card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border-top: 4px solid #0A1C3E; }
+    .match-info { text-align: center; font-weight: 700; color: #0A1C3E; font-size: 16px; margin-bottom: 15px; border-bottom: 2px dashed #D1D9E0; padding-bottom: 10px; }
+    .live-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #E1E8ED; }
+    .live-row:last-child { border-bottom: none; }
+    .rank { width: 30px; font-weight: bold; color: #888; font-size: 16px; }
+    .name { flex: 1; font-weight: 600; font-size: 15px; }
+    .score-badge { background: #D4AF37; color: #000; font-weight: bold; padding: 4px 12px; border-radius: 20px; font-size: 15px; }
+    .status { text-align: center; font-size: 12px; color: #888; margin-top: 10px; margin-bottom: 30px; font-style: italic; }
+</style>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+<header>
+    <h1>🏆 Live Score Perdana</h1>
+</header>
+
+<div class="container">
+    <div id="locBox" class="loc-info" style="display: none;">📍 Menunggu koneksi...</div>
+    <div id="categoriesBox">
+        <div class="card" style="text-align: center; color: #888;">
+            Menunggu data turnamen dari Google Sheets...
+        </div>
+    </div>
+    <div class="status" id="statusText">🔄 Menginisialisasi koneksi...</div>
+</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+let encodedConfig = urlParams.get('c');
+
+if(!encodedConfig) {
+    document.getElementById('categoriesBox').innerHTML = `<div class="card" style="text-align: center; color: red;"><b>Akses Ditolak</b><br>Link tidak valid. Pastikan Anda membuka link dari tombol "Bagikan Link Live Score".</div>`;
+    document.getElementById('statusText').innerHTML = "❌ Gagal memuat data.";
+    document.getElementById('statusText').style.color = "red";
+} else {
+    // Memperbaiki spasi pada Base64 URL dan mendecode-nya kembali menjadi URL Google Sheets
+    encodedConfig = encodedConfig.replace(/ /g, '+');
+    const gsUrl = atob(encodedConfig);
+    
+    function fetchLiveScore() {
+        fetch(gsUrl)
+        .then(response => response.json())
+        .then(data => {
+            const statusText = document.getElementById('statusText');
+            const categoriesBox = document.getElementById('categoriesBox');
+            const locBox = document.getElementById('locBox');
+            
+            if (data && data.categories) {
+                locBox.style.display = "block";
+                locBox.innerText = `📍 ${data.location || 'Lokasi tidak diketahui'}`;
+                
+                let html = '';
+                for(let catId in data.categories) {
+                    let catData = data.categories[catId];
+                    html += `<div class="card"><div class="match-info">${catData.info}</div>`;
+                    
+                    if (catData.leaderboard && catData.leaderboard.length > 0) {
+                        catData.leaderboard.forEach((archer, idx) => {
+                            html += `<div class="live-row"><div class="rank">#${idx + 1}</div><div class="name">${archer.name}</div><div class="score-badge">${archer.skor} <span style="font-size:11px;font-weight:normal">(X:${archer.x})</span></div></div>`;
+                        });
+                    } else {
+                        html += `<div style="text-align:center; padding: 15px; color:#999; font-size:13px;">Belum ada skor yang diinput.</div>`;
+                    }
+                    html += `</div>`;
+                }
+                categoriesBox.innerHTML = html;
+                statusText.innerHTML = "🟢 Live (Otomatis dari Google Sheets)";
+                statusText.style.color = "green";
+            } else {
+                locBox.style.display = "none";
+                categoriesBox.innerHTML = `<div class="card" style="text-align: center; color: #888;">Belum ada skor yang masuk, atau turnamen belum dimulai.</div>`;
+                statusText.innerHTML = "🟡 Menunggu skor pertama...";
+                statusText.style.color = "orange";
+            }
+        })
+        .catch(error => {
+            console.error("Fetch Error: ", error);
+        });
+    }
+
+    // Panggil fungsi segera, dan ulangi setiap 5 detik
+    fetchLiveScore();
+    setInterval(fetchLiveScore, 5000);
+}
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('SW registered!', reg))
+        .catch(err => console.log('SW registration failed', err));
+    });
+  }
+</script>
+</body>
+</html>
