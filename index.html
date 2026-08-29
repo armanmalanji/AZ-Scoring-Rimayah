@@ -144,6 +144,7 @@ footer { text-align: center; padding: 20px; background: var(--navy-blue); color:
 
 <label style="margin-top: 20px; color: var(--navy-blue);">📡 Hubungkan ke Live Score (Google Sheets)</label>
 <input type="url" id="gsUrlInput" placeholder="Paste URL Web App Google Apps Script di sini..." style="font-size: 14px;">
+<button class="action-btn btn-blue" onclick="openTutorialModal()" style="margin-top: 10px; font-size: 13px; padding: 10px; width: auto; display: block;">📖 Cara Membuat Link Live Score</button>
 
 <!-- KOTAK TAMBAH KATEGORI / BABAK -->
 <div class="setup-box">
@@ -231,6 +232,37 @@ footer { text-align: center; padding: 20px; background: var(--navy-blue); color:
 <button class="action-btn btn-blue" onclick="shareLiveLink()">🔗 Bagikan Link Live Score</button>
 <button class="action-btn btn-gold" onclick="shareWhatsApp()" data-i18n="btnShareWA">📱 Share Hasil WA</button>
 </div>
+</div>
+
+
+<!-- MODAL TUTORIAL -->
+<div id="tutorialModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px; max-height: 85vh; text-align: left; overflow-y: auto;">
+        <h3 style="margin-top:0; color:var(--navy-blue); text-align:center; border-bottom: 2px solid var(--gold); padding-bottom: 10px;">📖 Tutorial Live Score</h3>
+        <div style="font-size: 13px; line-height: 1.5; color: var(--text-dark);">
+            <p><b>Langkah 1: Buat Google Sheets</b><br>1. Buka docs.google.com/spreadsheets<br>2. Buat spreadsheet kosong baru.<br>3. Beri nama file (bebas). Biarkan isinya kosong.</p>
+            <p><b>Langkah 2: Buka Apps Script</b><br>1. Klik menu <b>Ekstensi</b> > <b>Apps Script</b>.<br>2. Hapus semua kode bawaan yang ada.</p>
+            <p><b>Langkah 3: Masukkan Kode</b><br>Salin dan tempel kode berikut:</p>
+            <pre style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 11px; border-left: 3px solid var(--navy-blue); white-space: pre-wrap; word-wrap: break-word;">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataLive");
+  if (!sheet) { sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet("DataLive"); }
+  sheet.getRange("A1").setValue(e.postData.contents);
+  return ContentService.createTextOutput("Sukses");
+}
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataLive");
+  var jsonString = "{}"; 
+  if (sheet) {
+    var cellData = sheet.getRange("A1").getValue();
+    if (cellData) { jsonString = cellData; }
+  }
+  return ContentService.createTextOutput(jsonString).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+            <p><b>Langkah 4: Deploy & Otorisasi</b><br>1. Klik <b>Terapkan (Deploy)</b> > Deployment baru.<br>2. Pilih jenis <b>Aplikasi Web (Web app)</b>.<br>3. Set akses ke <b>"Siapa saja" (Anyone)</b>. Klik Terapkan.<br>4. Jika diminta izin keamanan, klik <i>Authorize access</i> > pilih email > klik <i>Advanced (Lanjutan)</i> > <i>Go to... (Buka...)</i> > Izinkan.</p>
+            <p><b>Langkah 5: Salin URL</b><br>Salin "URL Aplikasi Web" yang berakhiran <code>/exec</code> lalu paste ke kolom URL di pengaturan aplikasi ini.</p>
+        </div>
+        <button class="action-btn" onclick="closeTutorialModal()" style="background:#888; margin-top: 15px;">Tutup</button>
+    </div>
 </div>
 
 <!-- MODAL EDIT DATA PEMANAH -->
@@ -383,6 +415,9 @@ function selectArrowBox(index) { currentArrowIndex = index; updateDisplay(); }
 // --- FITUR EDIT PEMANAH DI TENGAH PERTANDINGAN ---
 function openEditModal() { document.getElementById('editModal').style.display = 'flex'; renderEditArcherList(); }
 function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+function openTutorialModal() { document.getElementById('tutorialModal').style.display = 'flex'; }
+function closeTutorialModal() { document.getElementById('tutorialModal').style.display = 'none'; }
+
 function renderEditArcherList() {
     let cat = tData[activeCatId]; let html = '';
     cat.archers.forEach((a, idx) => {
