@@ -1,4 +1,4 @@
-const CACHE_NAME = 'az-scoring-v4';
+const CACHE_NAME = 'az-scoring-v5';
 const ASSETS = [
   './',
   './index.html',

@@ -126,6 +126,7 @@ footer { text-align: center; padding: 20px; background: var(--navy-blue); color:
 <h1 class="header-title">AZ Scoring Rimayah</h1>
 </div>
 <div class="header-controls">
+<button onclick="openManualModal()" style="font-size:16px; padding: 4px 8px;" title="Panduan Penggunaan">ℹ️</button>
 <button id="langBtn" onclick="toggleLanguage()">ID</button>
 <button onclick="toggleTheme()">🌙</button>
 </div>
@@ -234,6 +235,27 @@ footer { text-align: center; padding: 20px; background: var(--navy-blue); color:
 </div>
 </div>
 
+
+
+<!-- MODAL PANDUAN -->
+<div id="manualModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px; max-height: 85vh; text-align: left; overflow-y: auto;">
+        <h3 style="margin-top:0; color:var(--navy-blue); text-align:center; border-bottom: 2px solid var(--gold); padding-bottom: 10px;">🎯 Panduan Penggunaan</h3>
+        <div style="font-size: 13px; line-height: 1.5; color: var(--text-dark);">
+            <p><b>1. Persiapan Awal</b><br>Isi Lokasi Pertandingan dan tambah kategori/babak (misal: U9 Putra, Kualifikasi, dll). Atur jarak, jumlah rambahan, dan daftar nama pemanah.</p>
+            <p><b>2. Fitur Pemanah & Nomor Arrow</b><br>Gunakan tanda <code>=</code> jika nomor urut target panah tiap orang berbeda (contoh: <code>Ali = 1, 3, 5</code>). Jika tidak, gunakan koma biasa antar nama.</p>
+            <p><b>3. Proses Penilaian (Skoring)</b><br>Klik "Mulai Turnamen". Pilih tab Kategori, lalu tab Pemanah. Pilih Rambahan, lalu klik kotak skor kosong dan gunakan Keypad (tombol angka) di bawahnya. Anda bisa mengubah jenis target dengan tombol "Ganti Mode Keypad".</p>
+            <p><b>4. Edit Data di Tengah Lomba</b><br>Jika ada kesalahan nama atau ada pemanah tambahan (susulan), klik tombol <b>⚙️ Edit</b> di halaman skoring untuk mengubah/menambah nama.</p>
+            <p><b>5. Leaderboard & Live Score</b><br>Papan Peringkat (Klasemen) ada di bagian bawah halaman skoring. Jika Anda sudah menautkan Google Sheets di awal, skor akan otomatis terkirim secara Live ke internet.</p>
+            <p><b>6. Lanjut Babak</b><br>Di menu Papan Peringkat, klik <b>➡️ Buat Babak Lanjutan</b> untuk otomatis menyaring pemanah teratas (misal: diambil 16 besar) ke babak berikutnya tanpa perlu mengetik ulang nama mereka.</p>
+            <p><b>7. Akhiri & Unduh Histori</b><br>Klik <b>Akhiri</b> untuk menyimpan data lomba ke dalam HP. Buka menu "Lihat Histori Turnamen" untuk mengunduh rekap skor ke Excel (📊) atau menyebarkan hasilnya via WhatsApp (📱).</p>
+            <div style="background: rgba(212, 175, 55, 0.15); padding: 10px; border-radius: 8px; margin-top: 15px; border-left: 3px solid var(--gold);">
+                <b>💡 Tips Aplikasi (PWA):</b><br>Anda dapat menginstal aplikasi ini ke HP dengan membuka browser Chrome > klik ikon <b>Titik Tiga</b> > <b>Tambahkan ke Layar Utama</b>. Aplikasi bisa dipakai di lapangan meskipun tidak ada sinyal internet!
+            </div>
+        </div>
+        <button class="action-btn" onclick="closeManualModal()" style="background:#888; margin-top: 15px;">Tutup Panduan</button>
+    </div>
+</div>
 
 <!-- MODAL TUTORIAL -->
 <div id="tutorialModal" class="modal-overlay">
@@ -415,6 +437,9 @@ function selectArrowBox(index) { currentArrowIndex = index; updateDisplay(); }
 // --- FITUR EDIT PEMANAH DI TENGAH PERTANDINGAN ---
 function openEditModal() { document.getElementById('editModal').style.display = 'flex'; renderEditArcherList(); }
 function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+function openManualModal() { document.getElementById('manualModal').style.display = 'flex'; }
+function closeManualModal() { document.getElementById('manualModal').style.display = 'none'; }
 function openTutorialModal() { document.getElementById('tutorialModal').style.display = 'flex'; }
 function closeTutorialModal() { document.getElementById('tutorialModal').style.display = 'none'; }
 
